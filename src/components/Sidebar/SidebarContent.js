@@ -25,9 +25,7 @@ const SidebarContent = ({ logoText, routes }) => {
   // to check for active links and opened collapses
   let location = useLocation();
   // this is for the rest of the collapses
-  const [state, setState] = useState({});
   const [token, setToken] = useState(localStorage.getItem("token"));
-  const [success, setSuccess] = useState(false);
 
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {

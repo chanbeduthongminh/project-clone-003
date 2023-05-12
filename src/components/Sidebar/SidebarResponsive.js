@@ -20,10 +20,13 @@ import IconBox from "../../components/Icons/IconBox";
 import { CreativeTimLogo } from "../Icons/Icons";
 import { Separator } from "../../components/Separator/Separator";
 import { SidebarHelp } from "../../components/Sidebar/SidebarHelp";
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import axios from "axios";
 
 function SidebarResponsive(props) {
+  const [token, setToken] = useState(localStorage.getItem("token"));
+
   // to check for active links and opened collapses
   let location = useLocation();
   // this is for the rest of the collapses
@@ -33,16 +36,92 @@ function SidebarResponsive(props) {
   const activeRoute = (routeName) => {
     return location.pathname === routeName ? "active" : "";
   };
+  const handleLogout = () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_API}/api/users/sign-out`, config)
+      .then((response) => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        window.location.href = "/";
+      })
+      .catch((error) => {
+        console.error(error.message);
+        // alert("An error occurred while signing innnnn");
+      });
+  };
   const createLinks = (routes) => {
     // Chakra Color Mode
     const activeBg = useColorModeValue("white", "gray.700");
     const inactiveBg = useColorModeValue("white", "gray.700");
     const activeColor = useColorModeValue("gray.700", "white");
     const inactiveColor = useColorModeValue("gray.400", "gray.400");
-
+    // sidebar responsive
     return routes.map((prop, key) => {
       if (prop.redirect) {
+        return null;
+      }
+      if (prop.path === "/logout") {
+        return (
+          // <NavLink to={"/signin"} key={prop.name}>
+          <Button
+            boxSize="initial"
+            justifyContent="flex-start"
+            alignItems="center"
+            bg="transparent"
+            mb={{
+              xl: "12px",
+            }}
+            mx={{
+              xl: "auto",
+            }}
+            py="12px"
+            ps={{
+              sm: "10px",
+              xl: "16px",
+            }}
+            borderRadius="15px"
+            _hover="none"
+            w="100%"
+            _active={{
+              bg: "inherit",
+              transform: "none",
+              borderColor: "transparent",
+            }}
+            _focus={{
+              boxShadow: "none",
+            }}
+            onClick={handleLogout}
+            key={prop.name}
+          >
+            <Flex>
+              {typeof prop.icon === "string" ? (
+                <Icon>{prop.icon}</Icon>
+              ) : (
+                <IconBox
+                  bg={inactiveBg}
+                  color="teal.300"
+                  h="30px"
+                  w="30px"
+                  me="12px"
+                >
+                  {prop.icon}
+                </IconBox>
+              )}
+              <Text color={inactiveColor} my="auto" fontSize="sm">
+                {prop.name}
+              </Text>
+            </Flex>
+          </Button>
+          // </NavLink>
+        );
+      }
+      if (prop.path === "/signin" || prop.path === "/signup") {
         return null;
       }
       if (prop.category) {
